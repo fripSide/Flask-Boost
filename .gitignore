@@ -6,3 +6,5 @@ config.py
 docs/_build
 config/production.py
 config/development.py
+*.log
+proj.log.*

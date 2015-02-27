@@ -47,6 +47,7 @@ def create_app():
     register_routes(app)
     register_jinja(app)
     register_error_handle(app)
+    register_logger(app)
     register_uploadsets(app)
 
     # before every request
@@ -125,6 +126,26 @@ def register_error_handle(app):
     @app.errorhandler(500)
     def page_500(error):
         return render_template('site/500.html'), 500
+
+def register_logger(app):
+    """
+    Usage:
+    from flask import current_app
+    current_app.logger.info(...) current_app.logger.debug(...) ... current_app.logger.error(...)
+    """
+    import logging
+    from logging.handlers import RotatingFileHandler
+
+    rfh = RotatingFileHandler('%s/logs/proj.log' % app.config.get('PROJECT_PATH'), 'a',
+                              1 * 1024 * 1024, 10)
+    if not app.debug:
+        rfh.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+    rfh.setFormatter(formatter)
+    app.logger.addHandler(rfh)
+    app.logger.info('start logging')
+    for item in sys.path:
+        app.logger.info(item)
 
 
 def register_uploadsets(app):
